@@ -1,5 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
+using ToolSuite.AssetTools.ReferencesTools.Operations;
+using UnityObject = UnityEngine.Object;
 
 namespace ToolSuite.AssetTools.ReferencesTools
 {
@@ -9,6 +11,7 @@ namespace ToolSuite.AssetTools.ReferencesTools
 
         private Object originalAsset = null;
         private Object replaceAsset = null;
+        private UnityObject[] references = null;
         private Vector2 scrollPosition = Vector2.zero;
 
         [MenuItem(ToolSuiteMenuName.MENU_NAME + "/" + AssetToolsMenuName.MENU_NAME + "/" + MENU_NAME)]
@@ -26,15 +29,41 @@ namespace ToolSuite.AssetTools.ReferencesTools
                 return;
             }
 
-            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
-
+            UnityObject oldOriginalAsset = originalAsset;
             originalAsset = EditorGUILayout.ObjectField(new GUIContent("Original Asset: "), originalAsset, typeof(Object), false);
+            if (oldOriginalAsset != originalAsset)
+            {
+                references = null;
+            }
 
+            UnityObject oldReplaceAsset = replaceAsset;
             replaceAsset = EditorGUILayout.ObjectField(new GUIContent("Replace references with: "), replaceAsset, typeof(Object), false);
+            if (oldReplaceAsset != replaceAsset)
+            {
+                references = null;
+            }
 
-            GUILayout.Button("Replace references");
+            if (GUILayout.Button("Replace references"))
+            {
+                references = null;
+                ReferencesOperation operation = new ReplaceReferencesOperation();
+                UnityObject[] parameters = new UnityObject[]
+                {
+                    originalAsset,
+                    replaceAsset
+                };
+                references = operation.Execute(parameters) as UnityObject[];
+            }
 
-            EditorGUILayout.EndScrollView();
+            if (references != null)
+            {
+                scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+                foreach(UnityObject reference in references)
+                {
+                    EditorGUILayout.ObjectField(reference, typeof(UnityObject), false);
+                };
+                EditorGUILayout.EndScrollView();
+            }
         }
     }
 }

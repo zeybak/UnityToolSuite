@@ -1,7 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
 using ToolSuite.AssetTools.ReferencesTools.Operations;
-using System.Collections.Generic;
 using UnityObject = UnityEngine.Object;
 
 namespace ToolSuite.AssetTools.ReferencesTools
@@ -40,7 +39,12 @@ namespace ToolSuite.AssetTools.ReferencesTools
             if (GUILayout.Button("Search references"))
             {
                 references = null;
-                references = SearchReferencesOperation.Execute(assetToSearchReferencesFor) as UnityObject[];
+                ReferencesOperation operation = new SearchReferencesOperation();
+                UnityObject[] parameters = new UnityObject[]
+                {
+                    assetToSearchReferencesFor
+                };
+                references = operation.Execute(parameters) as UnityObject[];
             }
 
             if (references != null)
